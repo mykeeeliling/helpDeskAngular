@@ -4,6 +4,7 @@ import com.exist.ecc.helpDeskAngular.domain.dto.EmployeeDto;
 import com.exist.ecc.helpDeskAngular.domain.entity.Employee;
 import com.exist.ecc.helpDeskAngular.repository.EmployeeRepository;
 import com.exist.ecc.helpDeskAngular.service.EmployeeService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +18,15 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private final EmployeeRepository employeeRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
 
     public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
     }
 
     // Manual mapping conversion of Employee to EmployeeDto
+    /**
     private EmployeeDto convertToEmployeeDto(Employee employee){
         EmployeeDto employeeDto = new EmployeeDto();
         employeeDto.setEmployeeNumber(employee.getEmployeeNumber());
@@ -32,8 +36,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeDto.setDepartment(employee.getDepartment());
         employeeDto.setTicketAssigned(employee.getTicket());
         return employeeDto;
-    }
+    }**/
 
+    /**
     // Manual mapping conversion of EmployeeDto to Employee
     private Employee convertToEmployee(EmployeeDto employeeDto){
         Employee employee = new Employee();
@@ -44,14 +49,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setDepartment(employeeDto.getDepartment());
         employee.setTicket(employeeDto.getTicketAssigned());
         return employee;
-    }
+    }**/
 
     @Override
     public List<EmployeeDto> list() {
         return ((List<Employee>) employeeRepository
         .findAll())
         .stream()
-        .map(this::convertToEmployeeDto)
+        .map(employee -> modelMapper.map(employee, EmployeeDto.class))
         .collect(Collectors.toList());
     }
 
@@ -59,8 +64,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeDto view(Long employeeNumber) {
         Optional<Employee> employee = employeeRepository.findByEmployeeNumber(employeeNumber);
         if (employee.isPresent()){
-            EmployeeDto employeeDto = convertToEmployeeDto(employee.get());
-            return employeeDto;
+            EmployeeDto employeeDto = modelMapper.map(employee, EmployeeDto.class);
+            return  employeeDto;
         } else {
             throw new IllegalStateException("Employee number does not exist");
         }
@@ -72,20 +77,23 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (employeeExists.isPresent()){
             throw new IllegalStateException("Employee Number already exists");
         } else {
-            Employee employee = convertToEmployee(employeeDto);
+            Employee employee = modelMapper.map(employeeDto, Employee.class);
             return employeeRepository.save(employee);
         }
     }
 
     @Override
-    public EmployeeDto update(Employee employeeRequests, Long employeeNumber) {
-        Optional<Employee> employee = employeeRepository.findByEmployeeNumber(employeeNumber);
-        if (employee.isEmpty()){
+    public EmployeeDto update(EmployeeDto employeeRequests, Long employeeNumber) {
+        return null;
+    }
+
+    @Override
+    public void delete(Long employeeNumber) {
+        Optional<Employee> employeeExists = employeeRepository.findByEmployeeNumber(employeeNumber);
+        if (employeeExists.isPresent()){
+            employeeRepository.delete(employeeExists.get());
+        } else {
             throw new IllegalStateException("Employee Number does not exists");
         }
-        Employee employeeFromDb;
-        employeeFromDb = employeeRequests;
-        employeeRepository.save(employeeFromDb);
-        return convertToEmployeeDto(employeeFromDb);
     }
 }
