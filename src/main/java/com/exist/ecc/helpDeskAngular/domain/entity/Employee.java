@@ -2,11 +2,15 @@ package com.exist.ecc.helpDeskAngular.domain.entity;
 
 import com.exist.ecc.helpDeskAngular.domain.reference.Department;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "Employee")
 @Table(
         name = "employee",
@@ -39,16 +43,4 @@ public class Employee {
     @JoinColumn(name = "ticket_number")
     private Ticket ticket;
 
-    public Employee() {
-    }
-
-    public Employee(Long id, Long employeeNumber, String firstName, String middleName, String lastName, Department department, Ticket ticket) {
-        this.id = id;
-        this.employeeNumber = employeeNumber;
-        this.firstName = firstName;
-        this.middleName = middleName;
-        this.lastName = lastName;
-        this.department = department;
-        this.ticket = ticket;
-    }
 }

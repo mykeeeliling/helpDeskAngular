@@ -1,8 +1,11 @@
 package com.exist.ecc.helpDeskAngular.service.impl;
 
 import com.exist.ecc.helpDeskAngular.domain.dto.EmployeeDto;
+import com.exist.ecc.helpDeskAngular.domain.dto.WatchersDto;
 import com.exist.ecc.helpDeskAngular.domain.entity.Employee;
+import com.exist.ecc.helpDeskAngular.domain.entity.Ticket;
 import com.exist.ecc.helpDeskAngular.repository.EmployeeRepository;
+import com.exist.ecc.helpDeskAngular.repository.TicketRepository;
 import com.exist.ecc.helpDeskAngular.service.EmployeeService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +22,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeRepository employeeRepository;
 
     @Autowired
+    private final TicketRepository ticketRepository;
+
+    @Autowired
     private ModelMapper modelMapper;
 
-    public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository, TicketRepository ticketRepository) {
         this.employeeRepository = employeeRepository;
+        this.ticketRepository = ticketRepository;
     }
 
     // Manual mapping conversion of Employee to EmployeeDto
@@ -83,8 +90,15 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public EmployeeDto update(EmployeeDto employeeRequests, Long employeeNumber) {
-        return null;
+    public Employee update(EmployeeDto employeeRequests, Long employeeNumber) {
+        Optional<Employee> employeeExists = employeeRepository.findByEmployeeNumber(employeeNumber);
+        if (employeeExists.isPresent()){
+            Employee employee = employeeExists.get();
+            modelMapper.map(employeeRequests, employee);
+            return employeeRepository.save(employee);
+        } else {
+            throw new IllegalStateException("Employee Number does not exists");
+        }
     }
 
     @Override
@@ -94,6 +108,19 @@ public class EmployeeServiceImpl implements EmployeeService {
             employeeRepository.delete(employeeExists.get());
         } else {
             throw new IllegalStateException("Employee Number does not exists");
+        }
+    }
+
+    @Override
+    public void assignTicket(Long employeeNumber, Long ticketNumber) {
+        Optional<Employee> employeeExists = employeeRepository.findByEmployeeNumber(employeeNumber);
+        if (employeeExists.isPresent()){
+            Employee employee = employeeExists.get();
+            Ticket ticket = ticketRepository.findById(ticketNumber).orElseThrow(()
+                    -> new IllegalStateException("Ticket number does not exists"));
+            ticket.setAssignee(employee);
+            employee.setTicket(ticket);
+            employeeRepository.save(employee);
         }
     }
 }

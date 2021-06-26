@@ -10,6 +10,7 @@ public interface EmployeeService {
     List<EmployeeDto> list();
     EmployeeDto view(Long employeeNumber);
     Employee create(EmployeeDto employeeDto);
-    EmployeeDto update(EmployeeDto employeeDto, Long employeeNumber);
+    Employee update(EmployeeDto employeeDto, Long employeeNumber);
     void delete(Long employeeNumber);
+    void assignTicket(Long employeeNumber, Long ticketNumber);
 }

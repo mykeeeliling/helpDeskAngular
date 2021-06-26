@@ -1,8 +1,12 @@
 package com.exist.ecc.helpDeskAngular.domain.entity;
 
+import com.exist.ecc.helpDeskAngular.domain.dto.EmployeeDto;
+import com.exist.ecc.helpDeskAngular.domain.dto.WatchersDto;
 import com.exist.ecc.helpDeskAngular.domain.reference.Severity;
 import com.exist.ecc.helpDeskAngular.domain.reference.Status;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -10,12 +14,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "Ticket")
 @Table(name = "ticket")
 public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(
+            updatable = false,
             name = "ticket_number",
             nullable = false
     )
@@ -30,11 +37,11 @@ public class Ticket {
     )
     private String description;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated
     @Column(nullable = false)
     private Severity severity;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated
     @Column(nullable = false)
     private Status status;
 
@@ -46,17 +53,6 @@ public class Ticket {
 //    @JoinTable(name = "watchers",
 //            joinColumns = {@JoinColumn(name = "ticketNumber")},
 //            inverseJoinColumns = {@JoinColumn(name = "employeeNumber")})
-//    private List<Employee> watchers = new ArrayList<>();
+//    private List<EmployeeWatchersDto> watchers = new ArrayList<>();
 
-    public Ticket() {
-    }
-
-    public Ticket(Long ticketNumber, String title, String description, Severity severity, Status status, Employee assignee) {
-        this.ticketNumber = ticketNumber;
-        this.title = title;
-        this.description = description;
-        this.severity = severity;
-        this.status = status;
-        this.assignee = assignee;
-    }
 }
